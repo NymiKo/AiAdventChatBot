@@ -2,8 +2,8 @@ package com.example.aiadventchatbot.network
 
 import com.example.aiadventchatbot.models.ChatRequest
 import com.example.aiadventchatbot.models.ChatResponse
-import com.example.aiadventchatbot.models.CompletionOptions
 import com.example.aiadventchatbot.models.MessageInfo
+import com.example.aiadventchatbot.models.Roles
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -26,9 +26,24 @@ class ChatBot(
         modelUri: String = "gpt://$folderId/yandexgpt-lite/latest",
     ): String {
         return try {
+            val systemPrompt = MessageInfo(
+                Roles.SYSTEM.role,
+                """
+                                        Всегда отвечай строго в формате JSON. 
+                                        Структура ответа должна быть такой:
+                                        {
+                                            "header": "заголовок",
+                                            "answer": "развернутый и подробный ответ на вопрос",
+                                            "question": "мой вопрос"
+                                        }
+                                        Не добавляй никакого текста вне JSON-структуры. 
+                                        Если ответ содержит списки или сложные данные, 
+                                        форматируй их как вложенные JSON-объекты или массивы.
+                                    """.trimIndent()
+            )
             val request = ChatRequest(
                 modelUri = modelUri,
-                messages = messages,
+                messages = messages + systemPrompt,
             )
 
             val response = client.post(baseUrl) {
@@ -43,7 +58,7 @@ class ChatBot(
             }
 
             val responseBody = response.body<ChatResponse>()
-            responseBody.result.alternatives.first().message.text
+            responseBody.result.alternatives.first().message.text.removeSurrounding("```").trim()
         } catch (e: Exception) {
             "Request failed: ${e.message ?: "Unknown error"}"
         }

@@ -22,3 +22,10 @@ data class MessageInfo(
     val role: String,
     val text: String,
 )
+
+@Serializable
+data class MessageFormat(
+    val header: String,
+    val answer: String,
+    val question: String,
+)
