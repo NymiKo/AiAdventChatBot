@@ -29,20 +29,61 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.aiadventchatbot.models.MessageFormat
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
 import com.example.aiadventchatbot.network.ChatBot
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 @Composable
 fun ChatUI(chatBot: ChatBot) {
-    var messages by remember { mutableStateOf<List<MessageInfo>>(emptyList()) }
+    var messages by remember {
+        mutableStateOf(
+            listOf(
+                MessageInfo(
+                    Roles.SYSTEM.role,
+                    """
+                              # Системный промт: AI-диетолог
+
+Ты — эксперт по персонализированному питанию. Помогаешь составить индивидуальное меню, задавая уточняющие вопросы по одному в логичной последовательности.
+
+Принципы работы:
+Постепенность — задаешь один вопрос за раз, ждешь ответа.
+
+Логичный порядок — начинаешь с базовых данных (рост/вес), затем переходишь к целям, ограничениям и образу жизни.
+
+Автоматические расчеты — после получения роста и веса сразу вычисляешь норму калорий и озвучиваешь ее пользователю.
+
+Как вести диалог:
+Сначала запрашиваешь рост, вес и желаемые изменения (цель + срок).
+
+Затем уточняешь ограничения (аллергии, диеты и т.д.).
+
+Далее спрашиваешь про режим (время на готовку, питание вне дома).
+
+В конце — вкусовые предпочтения (любимые продукты).
+
+После сбора данных выдаешь недельное меню, включая:
+
+Калорийность и цели
+
+Блюда с пометками времени приготовления
+
+Список продуктов (оптом и на каждый день)
+
+Важно:
+
+Вопросы должны быть естественными, а не шаблонными.
+
+Не перегружай пользователя — спрашивай только то, что нужно для составления меню.
+
+Держи структуру, но адаптируй формулировки под контекст.
+                          """.trimIndent()
+                )
+            )
+        )
+    }
     var userInput by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -124,8 +165,8 @@ fun MessageBubble(message: MessageInfo) {
                     modifier = Modifier.padding(12.dp)
                 )
             }
-        } else {
-            val messageFormat = Json.decodeFromString<MessageFormat>(message.text)
+        } else if (message.role == Roles.ASSISTANT.role) {
+            //val messageFormat = Json.decodeFromString<MessageFormat>(message.text)
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
@@ -150,25 +191,25 @@ fun MessageBubble(message: MessageInfo) {
                     modifier = Modifier.align(Alignment.End)
                 )
                 if (showFormattedMessage) {
-                    Text(
-                        text = messageFormat.question,
-                        color = Color.Gray,
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                    Text(
-                        text = messageFormat.header,
-                        color = textColor,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = messageFormat.answer,
-                        color = textColor,
-                        modifier = Modifier.padding(12.dp)
-                    )
+//                    Text(
+//                        text = messageFormat.question,
+//                        color = Color.Gray,
+//                        fontSize = 11.sp,
+//                        modifier = Modifier.padding(12.dp)
+//                    )
+//                    Text(
+//                        text = messageFormat.header,
+//                        color = textColor,
+//                        fontSize = 18.sp,
+//                        fontWeight = FontWeight.ExtraBold,
+//                        textAlign = TextAlign.Center,
+//                        modifier = Modifier.fillMaxWidth()
+//                    )
+//                    Text(
+//                        text = messageFormat.answer,
+//                        color = textColor,
+//                        modifier = Modifier.padding(12.dp)
+//                    )
                 } else {
                     Text(
                         text = message.text,

@@ -3,7 +3,6 @@ package com.example.aiadventchatbot.network
 import com.example.aiadventchatbot.models.ChatRequest
 import com.example.aiadventchatbot.models.ChatResponse
 import com.example.aiadventchatbot.models.MessageInfo
-import com.example.aiadventchatbot.models.Roles
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -26,22 +25,9 @@ class ChatBot(
         modelUri: String = "gpt://$folderId/yandexgpt-lite/latest",
     ): String {
         return try {
-            val systemPrompt = MessageInfo(
-                Roles.SYSTEM.role,
-                """
-                                        Всегда отвечай строго в формате JSON. 
-                                        Структура ответа должна быть такой:
-                                        {
-                                            "header": "заголовок",
-                                            "answer": "развернутый и подробный ответ на вопрос",
-                                            "question": "мой вопрос"
-                                        }
-                                        Не добавляй никакого текста вне JSON-структуры.
-                                    """.trimIndent()
-            )
             val request = ChatRequest(
                 modelUri = modelUri,
-                messages = messages + systemPrompt,
+                messages = messages,
             )
 
             val response = client.post(baseUrl) {
