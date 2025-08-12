@@ -12,8 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -30,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
 import com.example.aiadventchatbot.network.ChatBot
@@ -174,23 +171,28 @@ fun MessageBubble(message: MessageInfo) {
                 ),
                 modifier = Modifier.widthIn(max = 300.dp).align(alignment)
             ) {
-                Button(
-                    onClick = {
-                        showFormattedMessage = !showFormattedMessage
-                    },
-                    content = {
-                        Text(
-                            fontSize = 11.sp,
-                            color = Color.Gray,
-                            text = "Формат: ${if (showFormattedMessage) "текст" else "JSON"}"
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.align(Alignment.End)
+//                Button(
+//                    onClick = {
+//                        showFormattedMessage = !showFormattedMessage
+//                    },
+//                    content = {
+//                        Text(
+//                            fontSize = 11.sp,
+//                            color = Color.Gray,
+//                            text = "Формат: ${if (showFormattedMessage) "текст" else "JSON"}"
+//                        )
+//                    },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.Transparent
+//                    ),
+//                    modifier = Modifier.align(Alignment.End)
+//                )
+                Text(
+                    text = message.text,
+                    color = textColor,
+                    modifier = Modifier.padding(12.dp)
                 )
-                if (showFormattedMessage) {
+//                if (showFormattedMessage) {
 //                    Text(
 //                        text = messageFormat.question,
 //                        color = Color.Gray,
@@ -210,13 +212,13 @@ fun MessageBubble(message: MessageInfo) {
 //                        color = textColor,
 //                        modifier = Modifier.padding(12.dp)
 //                    )
-                } else {
-                    Text(
-                        text = message.text,
-                        color = textColor,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
+//                } else {
+//                    Text(
+//                        text = message.text,
+//                        color = textColor,
+//                        modifier = Modifier.padding(12.dp)
+//                    )
+//                }
             }
         }
     }
