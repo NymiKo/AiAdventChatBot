@@ -1,4 +1,4 @@
-package com.example.aiadventchatbot.network
+package com.example.aiadventchatbot.data.network
 
 import com.example.aiadventchatbot.models.ChatRequest
 import com.example.aiadventchatbot.models.ChatResponse

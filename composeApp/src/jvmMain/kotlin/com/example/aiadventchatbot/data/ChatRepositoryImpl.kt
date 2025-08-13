@@ -1,9 +1,9 @@
 package com.example.aiadventchatbot.data
 
+import com.example.aiadventchatbot.data.network.MenuGenerator
 import com.example.aiadventchatbot.domain.ChatRepository
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
-import com.example.aiadventchatbot.network.MenuGenerator
 
 class ChatRepositoryImpl(
     private val menuGenerator: MenuGenerator

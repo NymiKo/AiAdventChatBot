@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.example.aiadventchatbot.data.ChatRepositoryImpl
-import com.example.aiadventchatbot.network.MenuGenerator
+import com.example.aiadventchatbot.data.network.MenuGenerator
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
