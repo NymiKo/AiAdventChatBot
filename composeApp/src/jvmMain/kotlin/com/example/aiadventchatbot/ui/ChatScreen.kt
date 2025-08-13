@@ -243,7 +243,7 @@ fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
                 )
                 if (validationMenu.text.isNotBlank()) {
                     Text(
-                        text = "Валидатор меню",
+                        text = "Валидатор меню (2 агент)",
                         color = Color.Gray,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(12.dp)
