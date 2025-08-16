@@ -21,11 +21,7 @@ data class ChatMessage(
 data class MessageInfo(
     val role: String,
     val text: String,
-)
-
-@Serializable
-data class MessageFormat(
-    val header: String,
-    val answer: String,
-    val question: String,
-)
+    val isVisible: Boolean = true,
+) {
+    constructor(role: Roles, text: String) : this(role.role, text, role.isVisible)
+}

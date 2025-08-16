@@ -98,7 +98,7 @@ fun MessageInput(
 
 @Composable
 fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
-    val isUser = message.role == Roles.USER.role
+    val isUser = message.role == Roles.VISIBLE_USER.role
     val bubbleColor = if (isUser) Color(0xFF4285F4) else Color(0xFFEAEAEA)
     val textColor = if (isUser) Color.White else Color.Black
     val alignment = if (isUser) Alignment.End else Alignment.Start
@@ -108,7 +108,7 @@ fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
             .fillMaxWidth()
             .padding(4.dp),
     ) {
-        if (message.role == Roles.USER.role) {
+        if (message.role == Roles.VISIBLE_USER.role && message.isVisible) {
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
@@ -122,7 +122,7 @@ fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
                     modifier = Modifier.padding(12.dp)
                 )
             }
-        } else if (message.role == Roles.ASSISTANT.role) {
+        } else if (message.role == Roles.ASSISTANT.role && message.isVisible) {
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(

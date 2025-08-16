@@ -7,8 +7,6 @@ import com.example.aiadventchatbot.domain.ChatRepository
 import com.example.aiadventchatbot.domain.McpRepository
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
-import com.example.aiadventchatbot.models.mcp.CreateNoteResponse
-import com.example.aiadventchatbot.models.mcp.MCPIntent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +14,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -40,8 +37,8 @@ class ChatViewModel(
     private var validatorMessages: List<MessageInfo> = emptyList()
 
     fun initChat() {
-        _messages.value = listOf(ChatPrompts.systemMessage)
-        validatorMessages = listOf(ChatPrompts.validatorMessage)
+        _messages.value = listOf(ChatPrompts.systemPromptsForMCP)
+        //validatorMessages = listOf(ChatPrompts.validatorMessage)
     }
 
     fun onUserInputChanged(newValue: String) {
@@ -51,38 +48,22 @@ class ChatViewModel(
     fun sendMessage() {
         if (_userInput.value.isBlank() || _isLoading.value) return
 
-        _isLoading.value = true
-        val userMessage = MessageInfo(Roles.USER.role, _userInput.value)
-        addMessage(userMessage)
-
         viewModelScope.launch {
-            val response = fetchAssistantResponse()
+            _isLoading.value = true
+            addMessage(MessageInfo(Roles.VISIBLE_USER, _userInput.value))
+
             try {
-                val elem = Json.parseToJsonElement(response)
+                val gptResponse = fetchAssistantResponse(MessageInfo(Roles.USER, _userInput.value))
 
-                if (elem is JsonObject) {
-                    val method = elem.jsonObject["method"]?.jsonPrimitive?.content ?: MCPIntent.None
-                    when (method) {
-                        "create_note" -> {
-                            val noteObject = elem.jsonObject["note"]?.jsonObject
-                                ?: throw IllegalArgumentException("Missing 'note' object")
-                            val noteInfo =
-                                Json.decodeFromJsonElement<CreateNoteResponse>(noteObject)
-                            val mcpResult =
-                                mcpRepository.createNote(noteInfo.fileName, noteInfo.content)
-                            addMessage(MessageInfo(Roles.ASSISTANT.role, mcpResult))
-                        }
-
-                        else -> handleAssistantResponse(response)
-                    }
-                } else {
-                    handleAssistantResponse(response)
+                when {
+                    isJsonCommand(gptResponse) -> handleMcpCommand(gptResponse)
+                    else -> addMessage(MessageInfo(Roles.ASSISTANT, gptResponse))
                 }
             } catch (e: Exception) {
-                handleAssistantResponse(response)
+                addMessage(MessageInfo(Roles.ASSISTANT, "Ошибка: ${e.message}"))
             } finally {
-                _userInput.value = ""
                 _isLoading.value = false
+                _userInput.update { "" }
             }
         }
     }
@@ -91,9 +72,9 @@ class ChatViewModel(
         _messages.value = _messages.value + message
     }
 
-    private suspend fun fetchAssistantResponse(): String {
+    private suspend fun fetchAssistantResponse(messageInfo: MessageInfo): String {
         return runCatching {
-            repository.sendMessage(_messages.value)
+            repository.sendMessage(_messages.value + messageInfo)
         }.getOrElse { "Ошибка: ${it.message ?: "Unknown error"}" }
     }
 
@@ -104,6 +85,28 @@ class ChatViewModel(
             addMessage(MessageInfo(Roles.ASSISTANT.role, response.replace("[VALIDATE_MENU]", "")))
         } else {
             addMessage(MessageInfo(Roles.ASSISTANT.role, response))
+        }
+    }
+
+    private suspend fun handleMcpCommand(jsonResponse: String) {
+        val command = Json.parseToJsonElement(jsonResponse).jsonObject
+
+        when (command["method"]?.jsonPrimitive?.content) {
+            "file_read" -> {
+                val path = command["path"]?.jsonPrimitive?.content ?: ""
+                val content = mcpRepository.getNoteContent(path)
+
+                val analysis = fetchAssistantResponse(MessageInfo(Roles.USER, content))
+                addMessage(MessageInfo(Roles.ASSISTANT, analysis))
+            }
+        }
+    }
+
+    private fun isJsonCommand(response: String): Boolean {
+        return try {
+            Json.parseToJsonElement(response) is JsonObject
+        } catch (e: Exception) {
+            false
         }
     }
 }

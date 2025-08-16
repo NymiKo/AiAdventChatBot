@@ -1,9 +1,11 @@
 package com.example.aiadventchatbot.data.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
@@ -24,5 +26,13 @@ class ObsidianMcpClient(
         } catch (e: Exception) {
             "Error: ${e.message}"
         }
+    }
+
+    suspend fun getNoteContent(path: String): String {
+        val response = client.get("$baseUrl/vault/$path") {
+            header("Authorization", "Bearer $obsidianApiKey")
+            contentType(ContentType.parse("text/markdown"))
+        }
+        return response.bodyAsText()
     }
 }

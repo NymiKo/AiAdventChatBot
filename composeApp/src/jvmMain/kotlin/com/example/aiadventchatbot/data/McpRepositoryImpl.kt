@@ -15,4 +15,7 @@ class McpRepositoryImpl(
         return@withContext obsidianMcpClient.createNote(fileName, content)
     }
 
+    override suspend fun getNoteContent(path: String): String = withContext(Dispatchers.IO) {
+        return@withContext obsidianMcpClient.getNoteContent(path)
+    }
 }
