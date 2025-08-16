@@ -22,7 +22,7 @@ class MenuGenerator(
 
     suspend fun sendMessage(
         messages: List<MessageInfo>,
-        modelUri: String = "gpt://$folderId/yandexgpt-lite/latest",
+        modelUri: String = "gpt://$folderId/yandexgpt/latest",
     ): String {
         return try {
             val request = ChatRequest(

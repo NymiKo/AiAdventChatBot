@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
 
@@ -136,19 +135,19 @@ fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
                     color = textColor,
                     modifier = Modifier.padding(12.dp)
                 )
-                if (validationMenu.text.isNotBlank()) {
-                    Text(
-                        text = "Валидатор меню (2 агент)",
-                        color = Color.Gray,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                    Text(
-                        text = validationMenu.text,
-                        color = textColor,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
+//                if (validationMenu.text.isNotBlank()) {
+//                    Text(
+//                        text = "Валидатор меню (2 агент)",
+//                        color = Color.Gray,
+//                        fontSize = 12.sp,
+//                        modifier = Modifier.padding(12.dp)
+//                    )
+//                    Text(
+//                        text = validationMenu.text,
+//                        color = textColor,
+//                        modifier = Modifier.padding(12.dp)
+//                    )
+//                }
             }
         }
     }

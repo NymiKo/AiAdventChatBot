@@ -4,16 +4,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aiadventchatbot.domain.ChatPrompts
 import com.example.aiadventchatbot.domain.ChatRepository
+import com.example.aiadventchatbot.domain.McpRepository
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
+import com.example.aiadventchatbot.models.mcp.CreateNoteResponse
+import com.example.aiadventchatbot.models.mcp.MCPIntent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class ChatViewModel(
-    private val repository: ChatRepository
+    private val repository: ChatRepository,
+    private val mcpRepository: McpRepository,
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<MessageInfo>>(emptyList())
@@ -48,9 +57,33 @@ class ChatViewModel(
 
         viewModelScope.launch {
             val response = fetchAssistantResponse()
-            handleAssistantResponse(response)
-            _userInput.value = ""
-            _isLoading.value = false
+            try {
+                val elem = Json.parseToJsonElement(response)
+
+                if (elem is JsonObject) {
+                    val method = elem.jsonObject["method"]?.jsonPrimitive?.content ?: MCPIntent.None
+                    when (method) {
+                        "create_note" -> {
+                            val noteObject = elem.jsonObject["note"]?.jsonObject
+                                ?: throw IllegalArgumentException("Missing 'note' object")
+                            val noteInfo =
+                                Json.decodeFromJsonElement<CreateNoteResponse>(noteObject)
+                            val mcpResult =
+                                mcpRepository.createNote(noteInfo.fileName, noteInfo.content)
+                            addMessage(MessageInfo(Roles.ASSISTANT.role, mcpResult))
+                        }
+
+                        else -> handleAssistantResponse(response)
+                    }
+                } else {
+                    handleAssistantResponse(response)
+                }
+            } catch (e: Exception) {
+                handleAssistantResponse(response)
+            } finally {
+                _userInput.value = ""
+                _isLoading.value = false
+            }
         }
     }
 

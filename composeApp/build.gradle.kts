@@ -25,6 +25,7 @@ kotlin {
             implementation(libs.kotlinx.serialization)
             implementation(libs.ktor.client.content.negotioation)
             implementation(libs.compose.icons)
+            implementation(libs.mcp.kotlin.sdk)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
