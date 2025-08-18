@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateNoteResponse(
-    val fileName: String,
+    val targetIdentifier: String,
     val content: String,
 )
