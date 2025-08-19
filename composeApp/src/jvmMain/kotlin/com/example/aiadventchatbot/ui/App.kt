@@ -5,23 +5,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.example.aiadventchatbot.data.ChatRepositoryImpl
-import com.example.aiadventchatbot.data.McpRepositoryImpl
-import com.example.aiadventchatbot.data.RecipesMcpClient
-import com.example.aiadventchatbot.data.RecipesMcpRepositoryImpl
-import com.example.aiadventchatbot.data.network.MenuGenerator
-import com.example.aiadventchatbot.data.network.ObsidianMcpClient
+import com.example.aiadventchatbot.data.network.YandexGPT
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val menuGenerator = remember { MenuGenerator(apiKey = "API_KEY", folderId = "CATALOG_ID") }
-        val repository = remember { ChatRepositoryImpl(menuGenerator) }
-        val obsidianMcpClient = remember { ObsidianMcpClient(obsidianApiKey = "OBSIDIAN_API_KEY") }
-        val mcpRepository = remember { McpRepositoryImpl(obsidianMcpClient) }
-        val recipesMcpRepository = remember { RecipesMcpRepositoryImpl(RecipesMcpClient()) }
-        val viewModel = remember { ChatViewModel(repository, mcpRepository, recipesMcpRepository) }
+        val yandexGPT = remember { YandexGPT(apiKey = "API_KEY", folderId = "CATALOG_ID") }
+        val repository = remember { ChatRepositoryImpl(yandexGPT) }
+        val viewModel = remember { ChatViewModel(repository) }
 
         LaunchedEffect(Unit) {
             viewModel.initChat()

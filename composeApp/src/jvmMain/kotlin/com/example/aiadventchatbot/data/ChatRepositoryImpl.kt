@@ -1,21 +1,21 @@
 package com.example.aiadventchatbot.data
 
-import com.example.aiadventchatbot.data.network.MenuGenerator
+import com.example.aiadventchatbot.data.network.YandexGPT
 import com.example.aiadventchatbot.domain.ChatRepository
 import com.example.aiadventchatbot.models.MessageInfo
 import com.example.aiadventchatbot.models.Roles
 
 class ChatRepositoryImpl(
-    private val menuGenerator: MenuGenerator
+    private val yandexGPT: YandexGPT
 ) : ChatRepository {
     override suspend fun sendMessage(messages: List<MessageInfo>): String {
-        return menuGenerator.sendMessage(messages)
+        return yandexGPT.sendMessage(messages)
     }
 
     override suspend fun validateMenu(
         messagesForValidator: List<MessageInfo>,
         menu: String
     ): String {
-        return menuGenerator.sendMessage(messagesForValidator + MessageInfo(Roles.USER.role, menu))
+        return yandexGPT.sendMessage(messagesForValidator + MessageInfo(Roles.USER.role, menu))
     }
 }

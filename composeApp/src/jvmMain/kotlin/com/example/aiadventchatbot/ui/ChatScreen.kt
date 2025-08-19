@@ -31,7 +31,6 @@ import com.example.aiadventchatbot.models.Roles
 @Composable
 fun ChatScreen(viewModel: ChatViewModel) {
     val messages by viewModel.messages.collectAsState()
-    val validationMenu by viewModel.validationMenu.collectAsState()
     val userInput by viewModel.userInput.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -42,7 +41,6 @@ fun ChatScreen(viewModel: ChatViewModel) {
         MessagesList(
             modifier = Modifier.weight(1F),
             messages = messages,
-            validationMenu = validationMenu
         )
         MessageInput(
             value = userInput,
@@ -56,7 +54,6 @@ fun ChatScreen(viewModel: ChatViewModel) {
 @Composable
 fun MessagesList(
     messages: List<MessageInfo>,
-    validationMenu: String,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -64,7 +61,7 @@ fun MessagesList(
         reverseLayout = true
     ) {
         items(messages.reversed()) { message ->
-            MessageBubble(message, MessageInfo(Roles.ASSISTANT.role, validationMenu))
+            MessageBubble(message)
         }
     }
 }
@@ -97,7 +94,7 @@ fun MessageInput(
 }
 
 @Composable
-fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
+fun MessageBubble(message: MessageInfo) {
     val isUser = message.role == Roles.VISIBLE_USER.role
     val bubbleColor = if (isUser) Color(0xFF4285F4) else Color(0xFFEAEAEA)
     val textColor = if (isUser) Color.White else Color.Black
@@ -135,19 +132,6 @@ fun MessageBubble(message: MessageInfo, validationMenu: MessageInfo) {
                     color = textColor,
                     modifier = Modifier.padding(12.dp)
                 )
-//                if (validationMenu.text.isNotBlank()) {
-//                    Text(
-//                        text = "Валидатор меню (2 агент)",
-//                        color = Color.Gray,
-//                        fontSize = 12.sp,
-//                        modifier = Modifier.padding(12.dp)
-//                    )
-//                    Text(
-//                        text = validationMenu.text,
-//                        color = textColor,
-//                        modifier = Modifier.padding(12.dp)
-//                    )
-//                }
             }
         }
     }

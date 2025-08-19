@@ -13,7 +13,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-class MenuGenerator(
+class YandexGPT(
     var apiKey: String,
     private val folderId: String,
 ) {
@@ -22,7 +22,7 @@ class MenuGenerator(
 
     suspend fun sendMessage(
         messages: List<MessageInfo>,
-        modelUri: String = "gpt://$folderId/yandexgpt-lite/latest",
+        modelUri: String = "gpt://$folderId/yandexgpt/latest",
     ): String {
         return try {
             val request = ChatRequest(
