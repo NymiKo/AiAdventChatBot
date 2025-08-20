@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
@@ -40,7 +41,7 @@ class ChatViewModel(
     }
 
     fun initChat() {
-        _messages.value = listOf(ChatPrompts.systemPromptsForMCP)
+        _messages.value = listOf(ChatPrompts.systemPrompt)
     }
 
     fun onUserInputChanged(newValue: String) {
@@ -97,6 +98,7 @@ class ChatViewModel(
         when (name) {
             "execute_shell_command" -> handleShellCommand(arguments)
             "run_android_tests" -> handleAndroidTests(arguments)
+            "generate_tests_for_file" -> handleGenerateTests(arguments)
             else -> addMessage(MessageInfo(Roles.ASSISTANT.role, "Неизвестная команда: $name"))
         }
     }
@@ -139,6 +141,137 @@ class ChatViewModel(
         val formattedResult = formatCommandResult(result, isTest = true)
         addMessage(MessageInfo(Roles.ASSISTANT.role, formattedResult))
     }
+
+    private suspend fun handleGenerateTests(arguments: JsonObject) {
+        val filePath = arguments["filePath"]?.jsonPrimitive?.content
+            ?: throw IllegalArgumentException("Отсутствует 'filePath'")
+        val testType = arguments["testType"]?.jsonPrimitive?.content ?: "unit"
+        val autoRun = arguments["autoRun"]?.jsonPrimitive?.booleanOrNull ?: false
+
+        val file = File(filePath)
+        if (!file.exists() || !file.isFile) {
+            addMessage(MessageInfo(Roles.ASSISTANT.role, "❌ Файл '$filePath' не найден"))
+            return
+        }
+
+        val fileContent = file.readText()
+
+        addMessage(
+            MessageInfo(
+                Roles.ASSISTANT.role,
+                "🧪 Генерация $testType тестов для файла: $filePath..."
+            )
+        )
+
+        // Промпт для LLM
+        val prompt = """
+        Сгенерируй $testType тесты на Kotlin для следующего кода.
+        КРИТИЧЕСКИ ВАЖНО:
+        1. Добавь КОРРЕКТНЫЙ package для тестового класса (на основе пути исходного файла)
+        2. Добавь ВСЕ необходимые импорты, включая:
+           - Импорт тестируемого класса (например: import com.example.Calculator)
+           - Импорты JUnit (org.junit.Test, org.junit.Assert.*)
+           - Импорты для всех других классов и типов, используемых в тестах
+        3. Не пропускай ни один необходимый импорт
+        
+        Проверь, что в сгенерированном коде есть package и все импорты.
+
+        Код:
+        ```
+        $fileContent
+        ```
+    """.trimIndent()
+
+        val generatedTests = runCatching {
+            repository.sendMessage(_messages.value + MessageInfo(Roles.USER, prompt))
+        }.getOrElse { "Ошибка генерации тестов: ${it.message}" }
+
+        // Сохраняем тесты в проект
+        val testFilePath: String
+        try {
+            testFilePath = getTestFilePath(filePath, testType)
+            val testFile = File(testFilePath)
+
+            testFile.parentFile?.mkdirs()
+            testFile.writeText(generatedTests)
+
+            addMessage(
+                MessageInfo(
+                    Roles.ASSISTANT.role,
+                    "✅ Тесты сохранены в файл: $testFilePath"
+                )
+            )
+        } catch (e: Exception) {
+            addMessage(
+                MessageInfo(
+                    Roles.ASSISTANT.role,
+                    "⚠️ Не удалось сохранить тесты: ${e.message}"
+                )
+            )
+            return
+        }
+
+        // Если включён autoRun → сразу запускаем тесты
+        if (autoRun) {
+            addMessage(
+                MessageInfo(
+                    Roles.ASSISTANT.role,
+                    "🚀 Запуск сгенерированных $testType тестов..."
+                )
+            )
+
+            val projectRoot = File(filePath).walkUpToProjectRoot()
+            val moduleName = detectModuleName(testFilePath, projectRoot)
+
+            val result = runAndroidTests(
+                projectPath = projectRoot.absolutePath,
+                testType = testType,
+                moduleName = moduleName,
+                buildVariant = "Debug"
+            )
+
+            val formattedResult = formatCommandResult(result, isTest = true)
+            addMessage(MessageInfo(Roles.ASSISTANT.role, formattedResult))
+        }
+    }
+
+    private fun detectModuleName(testFilePath: String, projectRoot: File): String? {
+        val relative = File(testFilePath).relativeTo(projectRoot).path
+        return relative.split(File.separator).firstOrNull()
+    }
+
+    private fun getTestFilePath(sourceFilePath: String, testType: String): String {
+        val file = File(sourceFilePath)
+        val projectRoot = file.walkUpToProjectRoot() // ищем build.gradle вверх по дереву
+
+        val relativePath = file.relativeTo(projectRoot).path
+            .removePrefix("src/main/java/")
+            .removeSuffix(".kt") + "Test.kt"
+
+        val testFolder = when (testType) {
+            "unit" -> "src/test/java"
+            "instrumented" -> "src/androidTest/java"
+            else -> "src/test/java"
+        }
+
+        return File(projectRoot, "$testFolder/$relativePath").path
+    }
+
+    private fun File.walkUpToProjectRoot(): File {
+        var current: File? = this
+        while (current != null) {
+            if (File(current, "build.gradle").exists() || File(
+                    current,
+                    "build.gradle.kts"
+                ).exists()
+            ) {
+                return current
+            }
+            current = current.parentFile
+        }
+        throw IllegalStateException("Не удалось найти корень проекта (build.gradle)")
+    }
+
 
     // Shell command execution
     private fun executeShellCommand(

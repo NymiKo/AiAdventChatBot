@@ -13,5 +13,5 @@ data class ChatRequest(
 data class CompletionOptions(
     val stream: Boolean = false,
     val temperature: Double = 0.6,
-    val maxTokens: Int = 1000,
+    val maxTokens: Int = 2500,
 )
