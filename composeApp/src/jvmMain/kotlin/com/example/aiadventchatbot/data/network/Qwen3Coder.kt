@@ -13,20 +13,19 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-class YandexGPT(
-    var apiKey: String,
-    private val folderId: String,
+class Qwen3Coder(
+    private val apiKey: String,
 ) {
     private val client: HttpClient by lazy { createHttpClient() }
-    private val baseUrl = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+    private val baseUrl = "https://api.cometapi.com/v1/chat/completions"
 
     suspend fun sendMessage(
         messages: List<MessageInfo>,
-        modelUri: String = "gpt://$folderId/yandexgpt/latest",
+        model: String = "qwen3-coder",
     ): String {
         return try {
             val request = ChatRequest(
-                modelUri = modelUri,
+                model = model,
                 messages = messages,
             )
 
@@ -42,7 +41,8 @@ class YandexGPT(
             }
 
             val responseBody = response.body<ChatResponse>()
-            responseBody.result.alternatives.first().message.text.removeSurrounding("```").trim()
+            print("RESPONSE_QWEN: $responseBody")
+            responseBody.choices.first().message.content.removeSurrounding("```").trim()
         } catch (e: Exception) {
             "Request failed: ${e.message ?: "Unknown error"}"
         }

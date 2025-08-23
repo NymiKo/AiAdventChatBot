@@ -4,12 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChatResponse(
-    val result: ChatResult
-)
-
-@Serializable
-data class ChatResult(
-    val alternatives: List<ChatMessage> = emptyList()
+    val choices: List<ChatMessage> = emptyList()
 )
 
 @Serializable
@@ -20,7 +15,7 @@ data class ChatMessage(
 @Serializable
 data class MessageInfo(
     val role: String,
-    val text: String,
+    val content: String,
     val isVisible: Boolean = true,
 ) {
     constructor(role: Roles, text: String) : this(role.role, text, role.isVisible)

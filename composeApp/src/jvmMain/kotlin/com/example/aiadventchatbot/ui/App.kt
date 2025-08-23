@@ -5,15 +5,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.example.aiadventchatbot.data.ChatRepositoryImpl
-import com.example.aiadventchatbot.data.network.YandexGPT
+import com.example.aiadventchatbot.data.network.Qwen3Coder
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val yandexGPT = remember { YandexGPT(apiKey = "API_KEY", folderId = "CATALOG_ID") }
-        val repository = remember { ChatRepositoryImpl(yandexGPT) }
+        val qwen3Coder = remember { Qwen3Coder(apiKey = "API_KEY") }
+        val repository = remember { ChatRepositoryImpl(qwen3Coder) }
         val viewModel = remember { ChatViewModel(repository) }
 
         LaunchedEffect(Unit) {

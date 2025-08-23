@@ -7,7 +7,7 @@ import com.example.aiadventchatbot.ui.App
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "AiAdventChatBot",
+        title = "Qwen3TesterAgent",
     ) {
         App()
     }

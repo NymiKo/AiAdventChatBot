@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChatRequest(
-    val modelUri: String,
+    val model: String,
     val messages: List<MessageInfo> = emptyList(),
     val completionOptions: CompletionOptions = CompletionOptions(),
 )

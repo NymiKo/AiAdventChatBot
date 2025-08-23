@@ -114,7 +114,7 @@ fun MessageBubble(message: MessageInfo) {
                 modifier = Modifier.widthIn(max = 300.dp).align(alignment)
             ) {
                 Text(
-                    text = message.text,
+                    text = message.content,
                     color = textColor,
                     modifier = Modifier.padding(12.dp)
                 )
@@ -128,7 +128,7 @@ fun MessageBubble(message: MessageInfo) {
                 modifier = Modifier.widthIn(max = 300.dp).align(alignment)
             ) {
                 Text(
-                    text = message.text,
+                    text = message.content,
                     color = textColor,
                     modifier = Modifier.padding(12.dp)
                 )
