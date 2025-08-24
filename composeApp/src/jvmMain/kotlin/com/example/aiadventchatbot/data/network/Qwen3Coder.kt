@@ -42,7 +42,7 @@ class Qwen3Coder(
 
             val responseBody = response.body<ChatResponse>()
             print("RESPONSE_QWEN: $responseBody")
-            responseBody.choices.first().message.content.removeSurrounding("```").trim()
+            responseBody.choices.first().message.content
         } catch (e: Exception) {
             "Request failed: ${e.message ?: "Unknown error"}"
         }

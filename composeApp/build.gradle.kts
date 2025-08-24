@@ -23,9 +23,10 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.ktor.serialization.json)
             implementation(libs.kotlinx.serialization)
-            implementation(libs.ktor.client.content.negotioation)
+            implementation(libs.ktor.client.content.negotiation)
             implementation(libs.compose.icons)
             implementation(libs.mcp.kotlin.sdk)
+            implementation(libs.commonmark)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

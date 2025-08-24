@@ -12,7 +12,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        val qwen3Coder = remember { Qwen3Coder(apiKey = "API_KEY") }
+        val qwen3Coder =
+            remember { Qwen3Coder(apiKey = "sk-OhFGM8NP1alQPbJcJcat1CP3X0HlYtYT8gfwWQOM3oouF7OG") }
         val repository = remember { ChatRepositoryImpl(qwen3Coder) }
         val viewModel = remember { ChatViewModel(repository) }
 

@@ -18,5 +18,5 @@ data class MessageInfo(
     val content: String,
     val isVisible: Boolean = true,
 ) {
-    constructor(role: Roles, text: String) : this(role.role, text, role.isVisible)
+    constructor(role: Roles, content: String) : this(role.role, content, role.isVisible)
 }

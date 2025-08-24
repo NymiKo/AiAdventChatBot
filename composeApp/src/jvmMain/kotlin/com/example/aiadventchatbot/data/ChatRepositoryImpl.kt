@@ -14,8 +14,8 @@ class ChatRepositoryImpl(
 
     override suspend fun validateMenu(
         messagesForValidator: List<MessageInfo>,
-        menu: String
+        prompt: String
     ): String {
-        return qwen3Coder.sendMessage(messagesForValidator + MessageInfo(Roles.USER.role, menu))
+        return qwen3Coder.sendMessage(messagesForValidator + MessageInfo(Roles.USER.role, prompt))
     }
 }
